@@ -190,28 +190,37 @@ class InsecureDirectObjectReferencesControllerTests {
         @JvmStatic
         fun referenceObjectWithAuthorizationProvider(): Stream<Arguments> {
             // See Database class for authorization config
-            val createClientFoo = { kc: Keycloak -> kc.createClient(realmName, "my-client-foo") }
-            val createClientBar = { kc: Keycloak -> kc.createClient(realmName, "my-client-bar") }
+            val createClientRimmer = { kc: Keycloak -> kc.createClient(realmName, "my-client-rimmer") }
+            val createClientKryton = { kc: Keycloak -> kc.createClient(realmName, "my-client-kryton") }
+            val createClientLister = { kc: Keycloak -> kc.createClient(realmName, "my-client-lister") }
 
             fun accountId(id: Int) = { _: Database -> id }
             fun accountUuid(id: Int) = { db: Database -> db.getAccountUuidById(id) }
 
             return Stream.of(
-                Arguments.of(accountId(1), createClientFoo, HttpStatus.FORBIDDEN),
-                Arguments.of(accountId(2), createClientFoo, HttpStatus.FORBIDDEN),
-                Arguments.of(accountId(3), createClientFoo, null),
+                Arguments.of(accountId(1), createClientRimmer, HttpStatus.FORBIDDEN),
+                Arguments.of(accountId(2), createClientRimmer, HttpStatus.FORBIDDEN),
+                Arguments.of(accountId(3), createClientRimmer, null),
                 // ---
-                Arguments.of(accountId(1), createClientBar, null),
-                Arguments.of(accountId(2), createClientBar, null),
-                Arguments.of(accountId(3), createClientBar, HttpStatus.FORBIDDEN),
+                Arguments.of(accountId(1), createClientKryton, null),
+                Arguments.of(accountId(2), createClientKryton, null),
+                Arguments.of(accountId(3), createClientKryton, HttpStatus.FORBIDDEN),
                 // ---
-                Arguments.of(accountUuid(1), createClientFoo, HttpStatus.FORBIDDEN),
-                Arguments.of(accountUuid(2), createClientFoo, HttpStatus.FORBIDDEN),
-                Arguments.of(accountUuid(3), createClientFoo, null),
+                Arguments.of(accountId(1), createClientLister, HttpStatus.FORBIDDEN),
+                Arguments.of(accountId(2), createClientLister, HttpStatus.FORBIDDEN),
+                Arguments.of(accountId(3), createClientLister, HttpStatus.FORBIDDEN),
                 // ---
-                Arguments.of(accountUuid(1), createClientBar, null),
-                Arguments.of(accountUuid(2), createClientBar, null),
-                Arguments.of(accountUuid(3), createClientBar, HttpStatus.FORBIDDEN),
+                Arguments.of(accountUuid(1), createClientRimmer, HttpStatus.FORBIDDEN),
+                Arguments.of(accountUuid(2), createClientRimmer, HttpStatus.FORBIDDEN),
+                Arguments.of(accountUuid(3), createClientRimmer, null),
+                // ---
+                Arguments.of(accountUuid(1), createClientKryton, null),
+                Arguments.of(accountUuid(2), createClientKryton, null),
+                Arguments.of(accountUuid(3), createClientKryton, HttpStatus.FORBIDDEN),
+                // ---
+                Arguments.of(accountUuid(1), createClientLister, HttpStatus.FORBIDDEN),
+                Arguments.of(accountUuid(2), createClientLister, HttpStatus.FORBIDDEN),
+                Arguments.of(accountUuid(3), createClientLister, HttpStatus.FORBIDDEN),
             )
         }
     }

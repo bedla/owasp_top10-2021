@@ -80,8 +80,9 @@ class Database {
         translator.putAll(translatorMap)
 
         val authorizationMap = mapOf(
-            "service-account-my-client-bar" to listOf(account1, account2),
-            "service-account-my-client-foo" to listOf(account3)
+            "service-account-my-client-kryton" to listOf(account1, account2),
+            "service-account-my-client-rimmer" to listOf(account3),
+            "service-account-my-client-lister" to listOf()
         )
         authorization.putAll(authorizationMap)
 
