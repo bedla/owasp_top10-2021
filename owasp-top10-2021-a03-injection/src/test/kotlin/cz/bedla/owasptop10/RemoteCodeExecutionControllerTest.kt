@@ -4,6 +4,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
@@ -46,10 +48,14 @@ class RemoteCodeExecutionControllerTest {
         restTemplate.resetHackedStatus(port)
     }
 
-    @Test
-    fun unsafeCallWithHarmlessData() {
+    @ParameterizedTest
+    @CsvSource(
+        "/process-yaml-unsafe",
+        "/process-yaml-safe"
+    )
+    fun callWithHarmlessData(endpointPath: String) {
         val responseEntity = restTemplate.postForEntity(
-            "$baseUrl/process-yaml-unsafe",
+            "$baseUrl$endpointPath",
             ProcessYamlRequest("name: Hello world!"),
             Any::class.java,
             mapOf(

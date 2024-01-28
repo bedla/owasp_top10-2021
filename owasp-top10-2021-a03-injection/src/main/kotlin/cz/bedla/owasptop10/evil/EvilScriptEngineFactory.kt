@@ -10,7 +10,7 @@ class EvilScriptEngineFactory : ScriptEngineFactory {
     init {
         logger.info("*** Now you are hacked! ***")
         if (System.getProperty("os.name").contains("windows", ignoreCase = true)) {
-            Runtime.getRuntime().exec(arrayOf("calc.exe"));
+            Runtime.getRuntime().exec(arrayOf("calc.exe"))
         }
 
         Files.writeString(Path.of(".", "hacked.txt"), "Now you are hacked!")
