@@ -46,12 +46,15 @@ class SqlInjectionControllerTest {
         restTemplate.clearPreparedStatementsCache(port)
     }
 
-
-    @Test
-    fun unsafeFindUsersSingleUser() {
+    @ParameterizedTest
+    @CsvSource(
+        "/user-injection",
+        "/user"
+    )
+    fun unsafeFindUsersSingleUser(endpointPath: String) {
         val requestEntity = RequestEntity.method(
             HttpMethod.GET,
-            "${baseUrl}/user-injection?id={id}",
+            "${baseUrl}$endpointPath?id={id}",
             mapOf(
                 "id" to "a1",
                 "port" to port
@@ -74,11 +77,15 @@ class SqlInjectionControllerTest {
             }
     }
 
-    @Test
-    fun unsafeFindUsersNoMatch() {
+    @ParameterizedTest
+    @CsvSource(
+        "/user-injection",
+        "/user"
+    )
+    fun unsafeFindUsersNoMatch(endpointPath: String) {
         val requestEntity = RequestEntity.method(
             HttpMethod.GET,
-            "${baseUrl}/user-injection?id={id}",
+            "${baseUrl}$endpointPath?id={id}",
             mapOf(
                 "id" to UUID.randomUUID(),
                 "port" to port
@@ -114,6 +121,26 @@ class SqlInjectionControllerTest {
             .hasSize(6)
         assertThat(response.map { it.id })
             .containsExactlyInAnyOrder("a1", "a2", "a3", "a4", "a5", "a6")
+    }
+
+    @Test
+    fun safeFindUsersWithSqlInjection() {
+        val requestEntity = RequestEntity.method(
+            HttpMethod.GET,
+            "${baseUrl}/user?id={id}",
+            mapOf(
+                "id" to "' OR 1=1 --",
+                "port" to port
+            )
+        ).build()
+
+        val responseEntity = restTemplate.exchange(requestEntity, typeRef<List<UserDto>>())
+
+        assertThat(responseEntity.statusCode)
+            .isEqualTo(HttpStatus.OK)
+        val response = responseEntity.body ?: error("No response body")
+        assertThat(response)
+            .isEmpty()
     }
 
     @ParameterizedTest
