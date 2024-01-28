@@ -1,6 +1,6 @@
 # OWASP Top 10 - A01 2021 - Broken Access Control
 
-In this example project we will present two use cases of Broken Access Control category from OWASP Top 10.
+In this example project we will present use cases of Broken Access Control category from OWASP Top 10.
 For more details you can take a look into OWASP web page here [https://owasp.org/Top10/A01_2021-Broken_Access_Control/](https://owasp.org/Top10/A01_2021-Broken_Access_Control/).
 
 ## Elevation of Privilege

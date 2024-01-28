@@ -1,6 +1,6 @@
 # OWASP Top 10 - A03 2021 - Injection
 
-In this example project we will present two use cases of Injection category from OWASP Top 10.
+In this example project we will present use cases of Injection category from OWASP Top 10.
 For more details you can take a look into OWASP web page here [https://owasp.org/Top10/A03_2021-Injection/](https://owasp.org/Top10/A03_2021-Injection/).
 
 ## SQL Injection

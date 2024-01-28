@@ -108,7 +108,7 @@ class SecurityMisconfigurationTest {
             serverErrorIncludeStacktrace = "never"
         )
 
-        fun createPropertiesMap(
+        private fun createPropertiesMap(
             serverErrorIncludeException: String,
             serverErrorIncludeMessage: String,
             serverErrorIncludeStacktrace: String
@@ -135,7 +135,9 @@ class SecurityMisconfigurationTest {
             urlPath = "/find-user-global-handler",
             assertExceptionAction = { e ->
                 assertThat(e)
-                    .isInstanceOf(HttpClientErrorException.NotFound::class.java)
+                    .isInstanceOfSatisfying(HttpClientErrorException.NotFound::class.java) {
+                        assertThat(it.responseBodyAsString).isEmpty()
+                    }
             }
         ),
         GLOBAL_OK(
