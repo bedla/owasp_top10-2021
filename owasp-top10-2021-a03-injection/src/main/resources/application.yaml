@@ -1,0 +1,11 @@
+server:
+  port: 8082
+debug: true
+spring:
+  datasource:
+    password: password
+    username: postgres
+    url: jdbc:postgresql://localhost:5432/postgres
+    hikari:
+      data-source-properties:
+        prepareThreshold: -1

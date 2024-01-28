@@ -1,0 +1,40 @@
+POST http://localhost:8080/realms/my-realm/protocol/openid-connect/token
+Authorization: Basic bXktY2xpZW50Ok9id2NkbTE5bVVkbXdpOTExWnA1cDhDU2FCR1ZacWtn
+Content-Type: application/x-www-form-urlencoded
+
+grant_type = client_credentials
+
+> {%
+    client.global.set("access-token", response.body["access_token"])
+%}
+
+###
+
+GET http://localhost:8081/elevation-of-privilege/hello?name=Vopicak
+Accept: application/json
+
+###
+
+GET http://localhost:8081/elevation-of-privilege/admin
+Accept: application/json
+Authorization: Bearer {{access-token}}
+
+###
+
+GET http://localhost:8081/elevation-of-privilege/super-admin
+Accept: application/json
+Authorization: Bearer {{access-token}}
+
+###
+
+GET http://localhost:8081/elevation-of-privilege/technical
+Accept: application/json
+Authorization: Bearer {{access-token}}
+
+###
+
+GET http://localhost:8081/elevation-of-privilege/also-admin
+Accept: application/json
+Authorization: Bearer {{access-token}}
+
+###

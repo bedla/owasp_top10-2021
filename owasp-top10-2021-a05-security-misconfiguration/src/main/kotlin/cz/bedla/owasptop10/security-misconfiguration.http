@@ -1,0 +1,20 @@
+### Not found
+
+GET http://localhost:8082/find-user-global-handler?last-name=Smid
+
+### Butch found
+
+GET http://localhost:8082/find-user-global-handler?last-name=Coolidge
+
+### Protected Wolf - Global handler
+
+GET http://localhost:8082/find-user-global-handler?last-name=Wolf
+
+### Protected Wolf - Custom handler
+
+GET http://localhost:8082/find-user-custom-handler?last-name=Wolf
+
+### Protected Wolf - Problem details
+
+GET http://localhost:8082/find-user-problemdetails-handler?last-name=Wolf
+

@@ -1,0 +1,47 @@
+### Injection
+
+GET http://localhost:8082/user-injection?id=a1
+Accept: application/json
+
+### Injection
+
+GET http://localhost:8082/user-injection?id=foo
+Accept: application/json
+
+### Injection
+
+GET http://localhost:8082/user-injection?id=' OR 1=1 --
+Accept: application/json
+
+### NO injection
+
+GET http://localhost:8082/user?id=a1
+Accept: application/json
+
+### NO injection
+
+GET http://localhost:8082/user?id=foo
+Accept: application/json
+
+### NO injection
+
+GET http://localhost:8082/user?id=' OR 1=1 --
+Accept: application/json
+
+### Clear Prepare statement Cache
+
+GET http://localhost:8082/prepare-statement-clear
+Accept: application/json
+
+
+### Prepare statement DUMP injection
+
+GET http://localhost:8082/prepare-statement-dump-injection
+Accept: application/json
+
+### Prepare statement DUMP injection
+
+GET http://localhost:8082/prepare-statement-dump
+Accept: application/json
+
+###

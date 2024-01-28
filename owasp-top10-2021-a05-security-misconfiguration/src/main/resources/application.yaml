@@ -1,0 +1,9 @@
+server:
+  port: 8082
+#  # Disabled because of interference with Tests
+#  error:
+#    include-binding-errors: always
+#    include-exception: true
+#    include-message: always
+#    include-stacktrace: always
+debug: true
